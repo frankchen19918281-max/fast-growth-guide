@@ -188,9 +188,12 @@ window.GrowthApp = {
               <span>《巴菲特的护城河》当前吸收率</span>
             </div>
           </div>
-          <button class="btn-top gold" onclick="GrowthApp.switchTab('reader', { bookId: 'pat-dorsey-moat', subTab: 'roadmap' })">
-            ⚡ 45分钟速读本书
-          </button>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+            <button class="btn-top" onclick="GrowthApp.forceRefreshApp()">🔄 刷新书库</button>
+            <button class="btn-top gold" onclick="GrowthApp.switchTab('reader', { bookId: 'pat-dorsey-moat', subTab: 'roadmap' })">
+              ⚡ 速读本书
+            </button>
+          </div>
         </div>
         <div class="hero-metrics-grid">
           <div class="hero-metric-item">
