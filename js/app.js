@@ -19,6 +19,11 @@ window.GrowthApp = {
     this.renderAll();
   },
 
+  forceRefreshApp() {
+    const cleanUrl = window.location.origin + window.location.pathname + "?v=" + Date.now();
+    window.location.replace(cleanUrl);
+  },
+
   toggleWideMode() {
     this.wideMode = !this.wideMode;
     const shell = document.getElementById("app-shell");

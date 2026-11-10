@@ -7,9 +7,12 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="快速成长指南" />
-  <link rel="manifest" href="manifest.json" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <link rel="manifest" href="manifest.json?v=2.1" />
   <title>快速成长指南 · 认知持仓簿</title>
-  <link rel="stylesheet" href="css/app.css" />
+  <link rel="stylesheet" href="css/app.css?v=2.1" />
 </head>
 <body>
   <div class="app-wrapper">
@@ -19,12 +22,13 @@
         <div class="brand-group">
           <div class="brand-logo">🏰</div>
           <div>
-            <div class="brand-title">快速成长指南</div>
+            <div class="brand-title">快速成长指南 <span style="font-size:10px;color:#fbbf24;font-weight:500;">v2.1</span></div>
             <div class="brand-sub">类持仓簿 · 价值投资极速精读系统</div>
           </div>
         </div>
         <div class="top-actions">
           <button id="btn-view-mode" class="btn-top" onclick="GrowthApp.toggleWideMode()">🖥️ 宽屏视图</button>
+          <button class="btn-top" onclick="GrowthApp.forceRefreshApp()" title="强制拉取最新书库">🔄 刷新</button>
           <button class="btn-top gold" onclick="GrowthApp.openNewBookModal()">＋ 新书建仓</button>
         </div>
       </header>
@@ -102,16 +106,16 @@
     </div>
   </div>
 
-  <!-- 模块化数据层与主程序按序加载 -->
-  <script src="data/categories.js"></script>
-  <script src="data/books/pat-dorsey-moat.js"></script>
-  <script src="data/books/graham-intelligent-investor.js"></script>
-  <script src="data/books/tangchao-financial-report.js"></script>
-  <script src="data/books/howard-marks-most-important.js"></script>
-  <script src="data/books/howard-marks-cycle.js"></script>
-  <script src="data/books/preset-watchlist.js"></script>
-  <script src="data/books-index.js"></script>
-  <script src="js/store.js"></script>
-  <script src="js/app.js"></script>
+  <!-- 模块化数据层与主程序按序加载（带版本号防手机主屏幕缓存） -->
+  <script src="data/categories.js?v=2.1"></script>
+  <script src="data/books/pat-dorsey-moat.js?v=2.1"></script>
+  <script src="data/books/graham-intelligent-investor.js?v=2.1"></script>
+  <script src="data/books/tangchao-financial-report.js?v=2.1"></script>
+  <script src="data/books/howard-marks-most-important.js?v=2.1"></script>
+  <script src="data/books/howard-marks-cycle.js?v=2.1"></script>
+  <script src="data/books/preset-watchlist.js?v=2.1"></script>
+  <script src="data/books-index.js?v=2.1"></script>
+  <script src="js/store.js?v=2.1"></script>
+  <script src="js/app.js?v=2.1"></script>
 </body>
 </html>
