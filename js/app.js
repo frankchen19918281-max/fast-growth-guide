@@ -721,24 +721,37 @@ window.GrowthApp = {
           </div>
         </div>
 
-        <!-- 步骤 4：第13章 现金回报率 (Cash Return) 自动测算器 -->
+        <!-- 步骤 4：第13章 现金回报率 + 老唐估值法 + 格雷厄姆乘数 三合一测算器 -->
         <div class="form-group" style="background:var(--bg-subtle);padding:12px;border-radius:10px;">
-          <label class="form-label">📐 步骤 4：第13章「现金回报率 (Cash Return)」自动测算与估值评估</label>
+          <label class="form-label">📐 步骤 4：三大经典估值工具实时测算（多尔西现金回报率 + 老唐三年打五折法 + 格雷厄姆乘数）</label>
           <div style="font-size:11.5px;color:var(--text-secondary);margin-bottom:8px;">
-            公式：<code>现金回报率 = (自由现金流 + 净利息费用) ÷ 企业价值(市值 + 长期负债 - 账面现金)</code>（单位统一即可，如亿元）
+            ① <strong>多尔西现金回报率</strong> = <code>(自由现金流 + 净利息) ÷ 企业价值(市值 + 长债 - 现金)</code>
           </div>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;">
-            <input id="cr-mcap" type="number" step="any" class="form-input" placeholder="当前市值" oninput="GrowthApp.calcCashReturn()" />
-            <input id="cr-debt" type="number" step="any" class="form-input" placeholder="长期有息负债" oninput="GrowthApp.calcCashReturn()" />
-            <input id="cr-cash" type="number" step="any" class="form-input" placeholder="账面全部现金" oninput="GrowthApp.calcCashReturn()" />
+            <input id="cr-mcap" type="number" step="any" class="form-input" placeholder="当前市值(亿)" oninput="GrowthApp.calcCashReturn()" />
+            <input id="cr-debt" type="number" step="any" class="form-input" placeholder="长期有息负债(亿)" oninput="GrowthApp.calcCashReturn()" />
+            <input id="cr-cash" type="number" step="any" class="form-input" placeholder="账面现金(亿)" oninput="GrowthApp.calcCashReturn()" />
           </div>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-items:center;">
-            <input id="cr-fcf" type="number" step="any" class="form-input" placeholder="年自由现金流(FCF)" oninput="GrowthApp.calcCashReturn()" />
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-items:center;margin-bottom:10px;">
+            <input id="cr-fcf" type="number" step="any" class="form-input" placeholder="年自由现金流(亿)" oninput="GrowthApp.calcCashReturn()" />
             <input id="cr-int" type="number" step="any" class="form-input" placeholder="净利息费用(选填0)" oninput="GrowthApp.calcCashReturn()" />
-            <div id="cr-result-box" style="font-size:13px;font-weight:800;color:var(--gold-dark);text-align:center;">
+            <div id="cr-result-box" style="font-size:12.5px;font-weight:800;color:var(--gold-dark);text-align:center;">
               现金回报率: --%
             </div>
           </div>
+
+          <div style="border-top:1px dashed var(--border-color);padding-top:8px;margin-top:4px;font-size:11.5px;color:var(--text-secondary);margin-bottom:6px;">
+            ② <strong>老唐《读财报》估值法</strong>（3年后合理利润×25倍PE的5折买进） & ③ <strong>格雷厄姆乘数</strong>（PE×PB ≤ 22.5）
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-items:center;margin-bottom:6px;">
+            <input id="lt-profit3y" type="number" step="any" class="form-input" placeholder="3年后预估净利润(亿)" oninput="GrowthApp.calcCashReturn()" />
+            <input id="bg-pe" type="number" step="any" class="form-input" placeholder="当前市盈率 PE" oninput="GrowthApp.calcCashReturn()" />
+            <input id="bg-pb" type="number" step="any" class="form-input" placeholder="当前市净率 PB" oninput="GrowthApp.calcCashReturn()" />
+          </div>
+          <div id="lt-bg-result-box" style="font-size:12px;font-weight:700;color:var(--navy-accent);background:#fff;padding:6px 10px;border-radius:6px;border:1px solid var(--border-color);">
+            💡 输入上方参数自动计算：老唐理想买点市值 -- 亿 | 格雷厄姆 PE×PB = --
+          </div>
+
           <select id="eval-val-status" class="form-select" style="margin-top:8px;">
             <option value="undervalued">🟢 显著低估（具备充足安全边际，隐含增长预期极低）</option>
             <option value="fair" selected>🟡 估值合理（可长期持有赚取企业内生ROIC增长收益）</option>
@@ -820,6 +833,20 @@ window.GrowthApp = {
     const fcf = parseFloat(document.getElementById("cr-fcf")?.value || "0");
     const intr = parseFloat(document.getElementById("cr-int")?.value || "0");
     const box = document.getElementById("cr-result-box");
+
+    const p3y = parseFloat(document.getElementById("lt-profit3y")?.value || "0");
+    const pe = parseFloat(document.getElementById("bg-pe")?.value || "0");
+    const pb = parseFloat(document.getElementById("bg-pb")?.value || "0");
+    const ltBox = document.getElementById("lt-bg-result-box");
+
+    if (ltBox) {
+      const ltBuy = p3y > 0 ? `${(p3y * 25 * 0.5).toFixed(1)} 亿 (合理 ${(p3y * 25).toFixed(0)} 亿)` : "-- 亿";
+      const bgVal = (pe > 0 && pb > 0)
+        ? `${(pe * pb).toFixed(1)} (${pe * pb <= 22.5 ? "✅≤22.5达标" : "⚠️>22.5偏高"})`
+        : "--";
+      ltBox.innerHTML = `💡 老唐5折买点：<strong>${ltBuy}</strong> &nbsp;|&nbsp; 格雷厄姆 PE×PB：<strong>${bgVal}</strong>`;
+    }
+
     if (!box) return "";
     const ev = mcap + debt - cash;
     if (ev > 0 && fcf !== 0) {

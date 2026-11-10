@@ -1,3 +1,5 @@
 .DS_Store
 *.epub
+*.pdf
+书库/
 tools/extracted/

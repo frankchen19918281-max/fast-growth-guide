@@ -70,13 +70,19 @@ def extract_epub(epub_path, out_dir):
 def main():
     root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     out_dir = os.path.join(root_dir, "tools", "extracted")
-    epubs = [f for f in os.listdir(root_dir) if f.lower().endswith(".epub")]
+    epubs = []
+    for r, _, files in os.walk(root_dir):
+        if ".git" in r or "extracted" in r:
+            continue
+        for f in sorted(files):
+            if f.lower().endswith(".epub"):
+                epubs.append(os.path.join(r, f))
     if not epubs:
-        print("未在根目录下发现 .epub 文件。请将电子书放入根目录后重试。")
+        print("未在目录或书库下发现 .epub 文件。")
         return
     print(f"📚 发现 {len(epubs)} 本 EPUB 电子书，开始提取...")
-    for epub in epubs:
-        extract_epub(os.path.join(root_dir, epub), out_dir)
+    for epub_path in epubs:
+        extract_epub(epub_path, out_dir)
 
 if __name__ == "__main__":
     main()
