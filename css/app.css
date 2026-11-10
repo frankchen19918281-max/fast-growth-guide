@@ -1,0 +1,861 @@
+/* 「快速成长指南」- 类“我的持仓簿”金融级卡片式小程序样式 */
+:root {
+  --bg-page: #0f172a;
+  --bg-shell: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-subtle: #f1f5f9;
+  --text-main: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --border-color: #e2e8f0;
+
+  /* 金融持仓风主题色：暗金 + 深海蓝 */
+  --gold-primary: #d97706;
+  --gold-light: #fef3c7;
+  --gold-dark: #92400e;
+  --navy-primary: #1e293b;
+  --navy-accent: #2563eb;
+
+  /* 优先级与状态色 */
+  --p0-bg: #fef2f2;
+  --p0-text: #dc2626;
+  --p0-border: #fecaca;
+  --p1-bg: #fffbeb;
+  --p1-text: #d97706;
+  --p1-border: #fde68a;
+  --p2-bg: #eff6ff;
+  --p2-text: #2563eb;
+  --p2-border: #bfdbfe;
+
+  --pos-green: #059669;
+  --pos-green-bg: #ecfdf5;
+  --neg-red: #dc2626;
+  --neg-red-bg: #fef2f2;
+
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background: var(--bg-page);
+  color: var(--text-main);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 外层容器：支持【小程序窄屏 520px】与【宽屏研报 1080px】一键切换 */
+.app-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+}
+
+.app-shell {
+  width: 100%;
+  max-width: 540px;
+  min-height: 100vh;
+  background: var(--bg-shell);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.45);
+  transition: max-width 0.25s ease;
+}
+
+.app-shell.wide-mode {
+  max-width: 1080px;
+}
+
+/* 顶部小程序导航栏 */
+.top-navbar {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #ffffff;
+  padding: 14px 18px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.brand-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+}
+
+.brand-title {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.brand-sub {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-top {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 20px;
+  padding: 5px 11px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-top:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.btn-top.gold {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border-color: transparent;
+  color: #fff;
+  font-weight: 600;
+}
+
+/* 当前选中书籍快捷切换横幅 */
+.active-book-bar {
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 8px 18px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.active-book-select {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+}
+
+/* 主内容区 */
+.main-content {
+  flex: 1;
+  padding: 16px 16px 90px;
+}
+
+/* 持仓总览黑金卡片（类“我的持仓簿”头部净值卡） */
+.portfolio-hero {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 65%, #451a03 100%);
+  color: #ffffff;
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.portfolio-hero-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.hero-label {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 4px;
+}
+
+.hero-main-val {
+  font-size: 26px;
+  font-weight: 800;
+  color: #fbbf24;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.hero-main-val span {
+  font-size: 12px;
+  color: #34d399;
+  font-weight: 500;
+}
+
+.hero-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hero-metric-item {
+  text-align: left;
+}
+
+.hero-metric-num {
+  font-size: 17px;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.hero-metric-lbl {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+/* 分类胶囊栏 */
+.category-pills {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+  scrollbar-width: none;
+}
+
+.category-pills::-webkit-scrollbar {
+  display: none;
+}
+
+.cat-pill {
+  white-space: nowrap;
+  padding: 6px 13px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.cat-pill.active {
+  background: var(--navy-primary);
+  color: #fbbf24;
+  border-color: var(--navy-primary);
+}
+
+/* 书籍持仓卡片列表 */
+.books-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.app-shell.wide-mode .books-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.book-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.book-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.book-card.active-holding {
+  border: 2px solid #d97706;
+}
+
+.book-card-header {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.book-cover-mini {
+  width: 58px;
+  height: 76px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.book-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.book-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-core {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge-active {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-watch {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+. badge-speed {
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.book-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 2px;
+}
+
+.book-author {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.book-question-box {
+  background: var(--bg-subtle);
+  border-left: 3px solid var(--gold-primary);
+  padding: 9px 11px;
+  border-radius: 0 8px 8px 0;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.book-progress-row {
+  margin-bottom: 12px;
+}
+
+.progress-label-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.progress-track {
+  width: 100%;
+  height: 7px;
+  background: #e2e8f0;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f59e0b 0%, #059669 100%);
+  border-radius: 99px;
+  transition: width 0.3s ease;
+}
+
+.book-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  text-align: center;
+  transition: all 0.15s;
+}
+
+.btn-primary {
+  background: var(--navy-primary);
+  color: #fbbf24;
+}
+
+.btn-primary:hover {
+  background: #0f172a;
+}
+
+.btn-outline {
+  background: #fff;
+  color: var(--text-main);
+  border-color: var(--border-color);
+}
+
+.btn-outline:hover {
+  background: var(--bg-subtle);
+}
+
+/* 二级子导航（极速拆书页内部切换） */
+.sub-tabs {
+  display: flex;
+  background: #e2e8f0;
+  padding: 4px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+.sub-tab-btn {
+  flex: 1;
+  padding: 7px 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.sub-tab-btn.active {
+  background: #ffffff;
+  color: var(--text-main);
+  box-shadow: var(--shadow-sm);
+}
+
+/* 通用卡片 */
+.section-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* 45分钟速读倒计时条 */
+.timer-banner {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  color: #fff;
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.timer-display {
+  font-size: 22px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #fbbf24;
+}
+
+/* 三阶速读步骤卡片 */
+.pass-card {
+  border-left: 4px solid var(--gold-primary);
+  background: var(--bg-subtle);
+  padding: 12px 14px;
+  border-radius: 0 10px 10px 0;
+  margin-bottom: 12px;
+}
+
+.pass-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.pass-name {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text-main);
+}
+
+.pass-badge {
+  background: var(--gold-light);
+  color: var(--gold-dark);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+
+.pass-list {
+  padding-left: 18px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.pass-list li {
+  margin-bottom: 5px;
+}
+
+/* 自检 Checkpoints */
+.checkpoint-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.checkpoint-item.done {
+  background: var(--pos-green-bg);
+  border-color: #a7f3d0;
+}
+
+.checkpoint-box {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 2px solid #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+  font-size: 12px;
+  color: #fff;
+}
+
+.checkpoint-item.done .checkpoint-box {
+  background: var(--pos-green);
+  border-color: var(--pos-green);
+}
+
+/* 章节精读卡片 */
+.chapter-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.chapter-card.is-read {
+  border-left: 4px solid var(--pos-green);
+}
+
+.chapter-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.priority-tag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.priority-P0 {
+  background: var(--p0-bg);
+  color: var(--p0-text);
+  border: 1px solid var(--p0-border);
+}
+
+.priority-P1 {
+  background: var(--p1-bg);
+  color: var(--p1-text);
+  border: 1px solid var(--p1-border);
+}
+
+.priority-P2 {
+  background: var(--p2-bg);
+  color: var(--p2-text);
+  border: 1px solid var(--p2-border);
+}
+
+.chapter-thesis {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #92400e;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.how-to-read-box {
+  font-size: 12.5px;
+  color: #1e40af;
+  background: #eff6ff;
+  padding: 8px 11px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.keypoints-list {
+  padding-left: 18px;
+  font-size: 13px;
+  color: var(--text-main);
+  margin-bottom: 12px;
+}
+
+.keypoints-list li {
+  margin-bottom: 6px;
+}
+
+.cases-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.case-item {
+  font-size: 12px;
+  padding: 7px 10px;
+  border-radius: 7px;
+}
+
+.case-pos {
+  background: var(--pos-green-bg);
+  color: #065f46;
+  border-left: 3px solid var(--pos-green);
+}
+
+.case-neg {
+  background: var(--neg-red-bg);
+  color: #991b1b;
+  border-left: 3px solid var(--neg-red);
+}
+
+.maxim-quote {
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: var(--bg-subtle);
+  padding: 7px 10px;
+  border-radius: 6px;
+  margin-top: 6px;
+  font-style: italic;
+}
+
+/* 行业护城河进度条表格 */
+.industry-row {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.industry-row:last-child {
+  border-bottom: none;
+}
+
+.industry-bar-wrap {
+  display: flex;
+  height: 10px;
+  border-radius: 99px;
+  overflow: hidden;
+  background: #e2e8f0;
+  margin: 6px 0 4px;
+}
+
+.bar-wide {
+  background: #d97706;
+}
+
+.bar-narrow {
+  background: #3b82f6;
+}
+
+/* 表单与交互体检器 */
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 700;
+  margin-bottom: 5px;
+  color: var(--text-main);
+}
+
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  background: #fff;
+}
+
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 7px;
+}
+
+.check-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 11px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 12.5px;
+  cursor: pointer;
+  background: #fff;
+}
+
+.check-pill input {
+  accent-color: var(--gold-primary);
+}
+
+/* 底部固定导航栏 */
+.bottom-tabbar {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  max-width: 540px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--border-color);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 6px 8px calc(10px + env(safe-area-inset-bottom));
+  z-index: 100;
+  transition: max-width 0.25s ease;
+}
+
+.app-shell.wide-mode .bottom-tabbar {
+  max-width: 1080px;
+}
+
+.tab-item {
+  border: none;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 0;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.tab-item .tab-icon {
+  font-size: 19px;
+}
+
+.tab-item.active {
+  color: var(--gold-primary);
+}
+
+/* 弹窗 Modal */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.modal-backdrop.open {
+  display: flex;
+}
+
+.modal-card {
+  background: #fff;
+  width: 100%;
+  max-width: 500px;
+  max-height: 88vh;
+  overflow-y: auto;
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 600px) {
+  .hero-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  #btn-view-mode {
+    display: none;
+  }
+}
