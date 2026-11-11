@@ -13,6 +13,12 @@ window.BOOK_GRAHAM_INTELLIGENT = {
   coverColor: "linear-gradient(135deg, #1e293b 0%, #0f172a 60%, #92400e 100%)",
   coverIcon: "🏛️",
   tags: ["市场先生(Mr. Market)", "安全边际", "防御型vs积极型", "格雷厄姆数字(PE×PB≤22.5)", "股债50:50再平衡"],
+  maximLabel: "格雷厄姆箴言",
+  priorityLabels: {
+    P0: "★ P0 核心必读（市场先生与安全边际）",
+    P1: "◆ P1 实战闭环（防御/进取组合配置）",
+    P2: "○ P2 历史背景与技术细则（略读）"
+  },
 
   coreQuestion: "普通人没有内幕消息和顶级智商，如何建立一套“不被自己情绪摧毁”的稳妥投资体系，在股市长期确保本金安全并获得满意回报？",
   coreFormula: [

@@ -131,8 +131,8 @@ window.GrowthApp = {
     const tabs = [
       { id: "portfolio", icon: "📊", label: "认知持仓" },
       { id: "reader", icon: "⚡", label: "极速拆书" },
-      { id: "evaluator", icon: "🛡️", label: "护城河体检" },
-      { id: "flashcards", icon: "🌱", label: "箴言闪卡" }
+      { id: "evaluator", icon: "⚖️", label: "投研体检" },
+      { id: "flashcards", icon: "🌱", label: "核心闪卡" }
     ];
     const el = document.getElementById("bottom-tabbar");
     if (!el) return;
@@ -225,7 +225,7 @@ window.GrowthApp = {
           </div>
           <div class="hero-metric-item">
             <div class="hero-metric-num">${evalCount} 只</div>
-            <div class="hero-metric-lbl">护城河体检标的</div>
+            <div class="hero-metric-lbl">实战体检标的</div>
           </div>
         </div>
         <!-- 四大认知赛道仓位分布概览 -->
@@ -343,7 +343,7 @@ window.GrowthApp = {
         ${hasIndustryTable ? `
           <button class="sub-tab-btn ${this.readerSubTab === "industry" ? "active" : ""}"
                   onclick="GrowthApp.setReaderSubTab('industry')">
-            🗺️ 行业护城河表
+            ${(book.extraTableMeta && book.extraTableMeta.tabLabel) || "🗺️ 专题数据表"}
           </button>
         ` : ""}
       </div>
@@ -429,8 +429,8 @@ window.GrowthApp = {
           <button class="btn btn-primary" onclick="GrowthApp.setReaderSubTab('chapters')">
             📑 进入逐章精读（按 P0/P1/P2 优先级）
           </button>
-          <button class="btn btn-outline" onclick="GrowthApp.switchTab('flashcards')">
-            🌱 速刷本书选股箴言闪卡
+          <button class="btn btn-outline" onclick="GrowthApp.openBookFlashcards('${book.id}')">
+            🌱 速刷本书「${book.maximLabel || "核心箴言"}」闪卡
           </button>
         </div>
       </div>
@@ -466,46 +466,16 @@ window.GrowthApp = {
     this.renderAll();
   },
 
+  openBookFlashcards(bookId) {
+    if (bookId) window.GrowthStore.setActiveBook(bookId);
+    this.maximBookScope = "active";
+    this.randomMaximIndex = 0;
+    this.switchTab("flashcards");
+  },
+
   getPriorityLabelsForBook(book) {
     if (book && book.priorityLabels) return book.priorityLabels;
-    const mapByBookId = {
-      "pat-dorsey-moat": {
-        P0: "★ P0 核心必读（护城河真伪与侵蚀）",
-        P1: "◆ P1 实战闭环（三步法/估值/卖出）",
-        P2: "○ P2 观念校准（快速浏览即可）"
-      },
-      "graham-intelligent-investor": {
-        P0: "★ P0 核心必读（市场先生与安全边际）",
-        P1: "◆ P1 实战闭环（防御/进取组合配置）",
-        P2: "○ P2 历史背景与技术细则（略读）"
-      },
-      "tangchao-financial-report": {
-        P0: "★ P0 核心必读（三大表排雷与反欺诈）",
-        P1: "◆ P1 实战闭环（杜邦拆解与老唐估值）",
-        P2: "○ P2 复杂会计准则（快速扫读）"
-      },
-      "howard-marks-most-important": {
-        P0: "★ P0 核心必读（第二层思维与风险控制）",
-        P1: "◆ P1 实战闭环（逆向投资与防御型组合）",
-        P2: "○ P2 观念延伸（快速浏览即可）"
-      },
-      "howard-marks-cycle": {
-        P0: "★ P0 核心必读（信贷周期与市场温度计）",
-        P1: "◆ P1 实战闭环（攻守调仓与周期局限）",
-        P2: "○ P2 基础背景（宏观与企业盈利周期）"
-      },
-      "pat-dorsey-five-rules": {
-        P0: "★ P0 核心必读（10分钟筛股/红旗排雷/DCF）",
-        P1: "◆ P1 黄金赛道词典（医药/消费/金融/软件）",
-        P2: "○ P2 传统周期词典（工业/能源/公用事业）"
-      },
-      "charlie-munger-almanack": {
-        P0: "★ P0 核心必读（思维格栅与误判心理学）",
-        P1: "◆ P1 逆向思维与学院派缺陷批判",
-        P2: "○ P2 基金会与华尔街制度批判（略读）"
-      }
-    };
-    return (book && mapByBookId[book.id]) || {
+    return {
       P0: "★ P0 核心必读（决定性底层框架）",
       P1: "◆ P1 实战闭环（方法论与案例应用）",
       P2: "○ P2 观念校准（快速浏览即可）"
@@ -625,7 +595,7 @@ window.GrowthApp = {
 
             ${(ch.maxims && ch.maxims.length > 0) ? `
               <div style="border-top:1px dashed var(--border-color);padding-top:8px;margin-top:8px;">
-                <div style="font-size:11.5px;font-weight:700;color:var(--gold-dark);">📌 原书本章「选股箴言」：</div>
+                <div style="font-size:11.5px;font-weight:700;color:var(--gold-dark);">📌 本章「${book.maximLabel || "核心箴言"}」：</div>
                 ${ch.maxims.map((m, idx) => `
                   <div class="maxim-quote">“${idx + 1}. ${m}”</div>
                 `).join("")}
@@ -670,6 +640,7 @@ window.GrowthApp = {
 
   renderIndustrySubView(book) {
     const rows = [...(book.industryMoatTable || [])];
+    const meta = book.extraTableMeta || {};
     if (this.industrySort === "wide") {
       rows.sort((a, b) => b.wide - a.wide || b.total - a.total);
     } else {
@@ -679,7 +650,7 @@ window.GrowthApp = {
     return `
       <div class="section-card">
         <div class="section-title">
-          <span>🗺️ 原书表9-1：晨星 2000+ 上市公司行业护城河分布全景</span>
+          <span>${meta.title || `🗺️ 《${book.title}》核心数据分布全景`}</span>
           <div style="display:flex;gap:6px;">
             <button class="cat-pill ${this.industrySort === "wide" ? "active" : ""}"
                     onclick="GrowthApp.setIndustrySort('wide')">按宽护城河%排序</button>
@@ -687,9 +658,11 @@ window.GrowthApp = {
                     onclick="GrowthApp.setIndustrySort('total')">按总护城河%排序</button>
           </div>
         </div>
-        <p style="font-size:12.5px;color:var(--text-secondary);margin-bottom:12px;">
-          银行劫匪萨顿名言：“我抢银行，是因为那儿有钱。”投资前先看行业天然肥瘦：<strong>金融服务、商业服务、媒体、消费品、软件</strong>是宽护城河富矿；而<strong>工业原料、硬件、餐饮零售</strong>则是竞争修罗场。
-        </p>
+        ${meta.desc ? `
+          <p style="font-size:12.5px;color:var(--text-secondary);margin-bottom:12px;">
+            ${meta.desc}
+          </p>
+        ` : ""}
 
         <div style="display:flex;gap:14px;font-size:12px;margin-bottom:10px;">
           <span><strong style="color:#d97706;">■</strong> 宽护城河占比 (%)</span>
@@ -723,18 +696,18 @@ window.GrowthApp = {
     this.renderMainContent();
   },
 
-  // ==================== TAB 3: 护城河实战体检仪（联动持仓簿） ====================
+  // ==================== TAB 3: 多维投研实战体检仪（联动持仓簿） ====================
   renderEvaluatorView() {
     const evals = window.GrowthStore.state.stockEvaluations || [];
 
     return `
       <div class="section-card">
         <div class="section-title">
-          <span>🛡️ 巴菲特护城河三步体检 & 估值卖出决策仪</span>
-          <span class="badge badge-core">与「我的持仓簿」联动</span>
+          <span>⚖️ 多维价值投研体检 & 估值决策仪</span>
+          <span class="badge badge-core">全书库模型合流</span>
         </div>
         <p style="font-size:12.5px;color:var(--text-secondary);margin-bottom:14px;">
-          把《巴菲特的护城河》第11章「晨星三步法」、第8章「侵蚀信号」、第13章「现金回报率公式」与第14章「四大卖出准则」浓缩为一张交互式股票体检表，为你的持仓标的打分存档：
+          打通全书库核心实战标尺——融合<strong>多尔西护城河三步法与现金回报率</strong>、<strong>老唐三年五折估值法</strong>、<strong>格雷厄姆安全边际乘数</strong>与<strong>卖出四原则</strong>，为你的持仓标的打分建档：
         </p>
 
         <!-- 步骤 0：标的基本信息 -->
@@ -1061,7 +1034,7 @@ window.GrowthApp = {
       ${currentCard ? `
         <div class="portfolio-hero" style="background:linear-gradient(135deg,#1e293b 0%,#0f172a 65%,#065f46 100%);">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
-            <span class="badge badge-core">🌱 每日选股箴言闪卡 (${(this.randomMaximIndex % allMaxims.length) + 1}/${allMaxims.length})</span>
+            <span class="badge badge-core">🌱 ${this.maximBookScope === "active" ? `《${activeBook.title}》${activeBook.maximLabel || "核心箴言"}` : "每日大师认知闪卡"} (${(this.randomMaximIndex % allMaxims.length) + 1}/${allMaxims.length})</span>
             <div style="display:flex;gap:6px;align-items:center;">
               <button class="btn-top" style="padding:3px 9px;font-size:11px;"
                       onclick="GrowthApp.toggleMaximBookScope()">
@@ -1109,10 +1082,10 @@ window.GrowthApp = {
         `).join("")}
       </div>
 
-      <!-- 全书 44+ 条选股箴言清单 -->
+      <!-- 核心箴言清单 -->
       <div class="section-card">
         <div class="section-title">
-          <span>📜 全书原著「选股箴言」总库 (${filteredMaxims.length})</span>
+          <span>📜 ${this.maximBookScope === "active" ? `《${activeBook.title}》「${activeBook.maximLabel || "核心箴言"}」(${filteredMaxims.length})` : `全书库原著「核心箴言」总库 (${filteredMaxims.length})`}</span>
           <div style="display:flex;gap:6px;">
             <button class="cat-pill ${this.maximFilter === "all" ? "active" : ""}"
                     onclick="GrowthApp.setMaximFilter('all')">全部</button>

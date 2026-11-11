@@ -2,14 +2,10 @@
 const STORAGE_KEY = "FAST_GROWTH_GUIDE_STATE_V1";
 
 const DEFAULT_STATE = {
-  activeBookId: "pat-dorsey-moat",
+  activeBookId: "",
   selectedCategory: "all",
-  completedCheckpoints: {
-    "pat-dorsey-moat": {}
-  },
-  readChapters: {
-    "pat-dorsey-moat": {}
-  },
+  completedCheckpoints: {},
+  readChapters: {},
   masteredMaxims: {},
   bookNotes: {
     "pat-dorsey-moat": [
@@ -64,6 +60,10 @@ window.GrowthStore = {
     } catch (e) {
       console.warn("LocalStorage load fallback:", e);
       this.state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+    }
+    if (!this.state.activeBookId) {
+      const firstBook = this.getAllBooks()[0];
+      if (firstBook) this.state.activeBookId = firstBook.id;
     }
     return this.state;
   },
