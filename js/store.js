@@ -114,7 +114,39 @@ window.GrowthStore = {
     const doneItems = readCount + cpCount;
     const percent = totalItems > 0 ? Math.round((doneItems / totalItems) * 100) : 0;
 
-    return { percent, readCount, totalChapters, cpCount, totalCp };
+    return { percent, readCount, totalChapters, cpCount, totalCp, doneItems, totalItems };
+  },
+
+  // 计算全书库综合认知净值与各赛道吸收率
+  getTotalPortfolioProgress() {
+    const books = this.getAllBooks();
+    let totalDone = 0;
+    let totalItems = 0;
+    let totalReadChapters = 0;
+    let totalChapters = 0;
+    let totalCpDone = 0;
+    let totalCp = 0;
+
+    books.forEach(b => {
+      const p = this.getBookProgress(b.id);
+      totalDone += p.doneItems;
+      totalItems += p.totalItems;
+      totalReadChapters += p.readCount;
+      totalChapters += p.totalChapters;
+      totalCpDone += p.cpCount;
+      totalCp += p.totalCp;
+    });
+
+    const percent = totalItems > 0 ? Math.round((totalDone / totalItems) * 100) : 0;
+    return {
+      percent,
+      totalDone,
+      totalItems,
+      totalReadChapters,
+      totalChapters,
+      totalCpDone,
+      totalCp
+    };
   },
 
   toggleChapterRead(bookId, chapterNum) {

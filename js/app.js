@@ -6,6 +6,7 @@ window.GrowthApp = {
   chapterSearch: "",
   industrySort: "wide",         // wide | total
   maximFilter: "all",           // all | unmastered | mastered
+  maximBookScope: "all",        // all | active
   randomMaximIndex: 0,
   wideMode: false,
 
@@ -164,14 +165,28 @@ window.GrowthApp = {
     const activeBook = window.GrowthStore.getActiveBook();
     const selectedCat = window.GrowthStore.state.selectedCategory || "all";
 
-    // 汇总统计指标
+    // 汇总统计指标（全组合动态净值 + 当前主攻书籍联动）
     const coreCount = books.filter(b => b.positionType === "core" || b.positionType === "active").length;
     const totalMaxims = books.reduce((acc, b) => {
       return acc + (b.chapters || []).reduce((s, ch) => s + ((ch.maxims || []).length), 0);
     }, 0);
     const masteredCount = Object.values(window.GrowthStore.state.masteredMaxims || {}).filter(Boolean).length;
     const evalCount = (window.GrowthStore.state.stockEvaluations || []).length;
-    const moatProg = window.GrowthStore.getBookProgress("pat-dorsey-moat");
+    const totalProg = window.GrowthStore.getTotalPortfolioProgress();
+    const activeProg = window.GrowthStore.getBookProgress(activeBook.id);
+
+    // 4大认知赛道持仓与吸收率统计
+    const sectorStats = (window.GROWTH_CATEGORIES || []).filter(c => c.id !== "all").map(cat => {
+      const catBooks = books.filter(b => b.category === cat.id);
+      let done = 0, items = 0;
+      catBooks.forEach(b => {
+        const p = window.GrowthStore.getBookProgress(b.id);
+        done += p.doneItems;
+        items += p.totalItems;
+      });
+      const pct = items > 0 ? Math.round((done / items) * 100) : 0;
+      return { ...cat, count: catBooks.length, pct };
+    });
 
     const filteredBooks = selectedCat === "all"
       ? books
@@ -182,36 +197,48 @@ window.GrowthApp = {
       <div class="portfolio-hero">
         <div class="portfolio-hero-top">
           <div>
-            <div class="hero-label">认知资产总持仓 · 快速成长指南</div>
+            <div class="hero-label">认知资产总持仓净值 · 快速成长指南</div>
             <div class="hero-main-val">
-              ${moatProg.percent}%
-              <span>《巴菲特的护城河》当前吸收率</span>
+              ${totalProg.percent}%
+              <span>全书库综合吸收率 · 当前主攻《${activeBook.title}》(${activeProg.percent}%)</span>
             </div>
           </div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
             <button class="btn-top" onclick="GrowthApp.forceRefreshApp()">🔄 刷新书库</button>
-            <button class="btn-top gold" onclick="GrowthApp.switchTab('reader', { bookId: 'pat-dorsey-moat', subTab: 'roadmap' })">
-              ⚡ 速读本书
+            <button class="btn-top gold" onclick="GrowthApp.switchTab('reader', { bookId: '${activeBook.id}', subTab: 'roadmap' })">
+              ⚡ 速读《${activeBook.title}》
             </button>
           </div>
         </div>
         <div class="hero-metrics-grid">
           <div class="hero-metric-item">
             <div class="hero-metric-num">${books.length} 本</div>
-            <div class="hero-metric-lbl">持仓/观察书库</div>
+            <div class="hero-metric-lbl">持仓精读书库</div>
           </div>
           <div class="hero-metric-item">
             <div class="hero-metric-num">${coreCount} 本</div>
-            <div class="hero-metric-lbl">核心在读仓位</div>
+            <div class="hero-metric-lbl">核心重仓精读</div>
           </div>
           <div class="hero-metric-item">
             <div class="hero-metric-num">${masteredCount}/${totalMaxims}</div>
-            <div class="hero-metric-lbl">已内化选股箴言</div>
+            <div class="hero-metric-lbl">已内化大师箴言</div>
           </div>
           <div class="hero-metric-item">
             <div class="hero-metric-num">${evalCount} 只</div>
             <div class="hero-metric-lbl">护城河体检标的</div>
           </div>
+        </div>
+        <!-- 四大认知赛道仓位分布概览 -->
+        <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.1);display:grid;grid-template-columns:repeat(4,1fr);gap:8px;font-size:11px;">
+          ${sectorStats.map(s => `
+            <div style="background:rgba(255,255,255,0.06);padding:6px 8px;border-radius:8px;cursor:pointer;" onclick="GrowthApp.selectCategory('${s.id}')">
+              <div style="color:#cbd5e1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.icon} ${s.name}</div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:2px;">
+                <strong style="color:#f8fafc;font-size:12px;">${s.count}本</strong>
+                <span style="color:#fbbf24;font-size:10.5px;">吸收 ${s.pct}%</span>
+              </div>
+            </div>
+          `).join("")}
         </div>
       </div>
 
@@ -439,6 +466,52 @@ window.GrowthApp = {
     this.renderAll();
   },
 
+  getPriorityLabelsForBook(book) {
+    if (book && book.priorityLabels) return book.priorityLabels;
+    const mapByBookId = {
+      "pat-dorsey-moat": {
+        P0: "★ P0 核心必读（护城河真伪与侵蚀）",
+        P1: "◆ P1 实战闭环（三步法/估值/卖出）",
+        P2: "○ P2 观念校准（快速浏览即可）"
+      },
+      "graham-intelligent-investor": {
+        P0: "★ P0 核心必读（市场先生与安全边际）",
+        P1: "◆ P1 实战闭环（防御/进取组合配置）",
+        P2: "○ P2 历史背景与技术细则（略读）"
+      },
+      "tangchao-financial-report": {
+        P0: "★ P0 核心必读（三大表排雷与反欺诈）",
+        P1: "◆ P1 实战闭环（杜邦拆解与老唐估值）",
+        P2: "○ P2 复杂会计准则（快速扫读）"
+      },
+      "howard-marks-most-important": {
+        P0: "★ P0 核心必读（第二层思维与风险控制）",
+        P1: "◆ P1 实战闭环（逆向投资与防御型组合）",
+        P2: "○ P2 观念延伸（快速浏览即可）"
+      },
+      "howard-marks-cycle": {
+        P0: "★ P0 核心必读（信贷周期与市场温度计）",
+        P1: "◆ P1 实战闭环（攻守调仓与周期局限）",
+        P2: "○ P2 基础背景（宏观与企业盈利周期）"
+      },
+      "pat-dorsey-five-rules": {
+        P0: "★ P0 核心必读（10分钟筛股/红旗排雷/DCF）",
+        P1: "◆ P1 黄金赛道词典（医药/消费/金融/软件）",
+        P2: "○ P2 传统周期词典（工业/能源/公用事业）"
+      },
+      "charlie-munger-almanack": {
+        P0: "★ P0 核心必读（思维格栅与误判心理学）",
+        P1: "◆ P1 逆向思维与学院派缺陷批判",
+        P2: "○ P2 基金会与华尔街制度批判（略读）"
+      }
+    };
+    return (book && mapByBookId[book.id]) || {
+      P0: "★ P0 核心必读（决定性底层框架）",
+      P1: "◆ P1 实战闭环（方法论与案例应用）",
+      P2: "○ P2 观念校准（快速浏览即可）"
+    };
+  },
+
   renderChaptersSubView(book) {
     const chapters = book.chapters || [];
     const readMap = window.GrowthStore.state.readChapters[book.id] || {};
@@ -460,11 +533,7 @@ window.GrowthApp = {
       return hay.includes(q);
     });
 
-    const priorityLabels = {
-      P0: "★ P0 核心必读（护城河真伪与侵蚀）",
-      P1: "◆ P1 实战闭环（三步法/估值/卖出）",
-      P2: "○ P2 观念校准（快速浏览即可）"
-    };
+    const priorityLabels = this.getPriorityLabelsForBook(book);
 
     return `
       <!-- 章节优先级过滤器与搜索栏 -->
@@ -488,7 +557,7 @@ window.GrowthApp = {
           </button>
         </div>
         <div style="display:flex;gap:8px;">
-          <input type="text" class="form-input" placeholder="🔍 搜索全书关键词（如：转换成本、ROIC、市销率、快扣、蒂芙尼...）"
+          <input type="text" class="form-input" placeholder="🔍 在《${book.title}》中搜索关键词（如：核心公式、案例、指标...）"
                  value="${this.chapterSearch}"
                  oninput="GrowthApp.onSearchChapter(this.value)" />
           <button class="btn btn-outline" style="flex:0 0 auto;white-space:nowrap;"
@@ -497,6 +566,15 @@ window.GrowthApp = {
           </button>
         </div>
       </div>
+
+      ${filtered.length === 0 ? `
+        <div class="section-card" style="text-align:center;padding:28px 16px;color:var(--text-secondary);">
+          <div style="font-size:24px;margin-bottom:6px;">🔍</div>
+          <div style="font-size:13.5px;font-weight:700;color:var(--text-main);margin-bottom:4px;">当前筛选或搜索条件下暂无匹配章节</div>
+          <div style="font-size:12px;margin-bottom:12px;">可尝试切换优先级标签或清空搜索关键词</div>
+          <button class="btn btn-outline" style="max-width:160px;margin:0 auto;" onclick="GrowthApp.resetChapterFilter()">重置筛选条件</button>
+        </div>
+      ` : ""}
 
       <!-- 逐章精读列表 -->
       ${filtered.map(ch => {
@@ -564,10 +642,16 @@ window.GrowthApp = {
     this.renderMainContent();
   },
 
+  resetChapterFilter() {
+    this.chapterFilter = "ALL";
+    this.chapterSearch = "";
+    this.renderMainContent();
+  },
+
   onSearchChapter(val) {
     this.chapterSearch = val;
     this.renderMainContent();
-    const input = document.querySelector(".form-input[placeholder*='搜索全书']");
+    const input = document.querySelector(".form-input[placeholder*='搜索关键词']");
     if (input) {
       input.focus();
       input.setSelectionRange(val.length, val.length);
@@ -953,7 +1037,13 @@ window.GrowthApp = {
   },
 
   renderFlashcardsView() {
-    const allMaxims = this.getAllMaximsList();
+    const activeBook = window.GrowthStore.getActiveBook();
+    const rawMaxims = this.getAllMaximsList();
+    const scopedMaxims = this.maximBookScope === "active"
+      ? rawMaxims.filter(m => m.bookId === activeBook.id)
+      : rawMaxims;
+    const allMaxims = scopedMaxims.length > 0 ? scopedMaxims : rawMaxims;
+
     const masteredMap = window.GrowthStore.state.masteredMaxims || {};
     const masteredCount = allMaxims.filter(m => masteredMap[m.key]).length;
 
@@ -964,16 +1054,21 @@ window.GrowthApp = {
       return true;
     });
 
-    const activeBook = window.GrowthStore.getActiveBook();
     const notes = window.GrowthStore.state.bookNotes[activeBook.id] || [];
 
     return `
       <!-- 顶部随机抽卡大卡片 -->
       ${currentCard ? `
         <div class="portfolio-hero" style="background:linear-gradient(135deg,#1e293b 0%,#0f172a 65%,#065f46 100%);">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-            <span class="badge badge-core">🌱 每日选股箴言闪卡 (${this.randomMaximIndex + 1}/${allMaxims.length})</span>
-            <span style="font-size:12px;color:#a7f3d0;">已内化 ${masteredCount}/${allMaxims.length} 条</span>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
+            <span class="badge badge-core">🌱 每日选股箴言闪卡 (${(this.randomMaximIndex % allMaxims.length) + 1}/${allMaxims.length})</span>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <button class="btn-top" style="padding:3px 9px;font-size:11px;"
+                      onclick="GrowthApp.toggleMaximBookScope()">
+                ${this.maximBookScope === "active" ? `📘 仅《${activeBook.title}》 (点此看全部)` : `📚 全部书库 (点此只看当前书)`}
+              </button>
+              <span style="font-size:12px;color:#a7f3d0;">已内化 ${masteredCount}/${allMaxims.length} 条</span>
+            </div>
           </div>
           <div style="font-size:16px;font-weight:700;line-height:1.6;color:#ffffff;margin-bottom:12px;">
             “${currentCard.text}”
@@ -1060,6 +1155,12 @@ window.GrowthApp = {
 
   setMaximFilter(f) {
     this.maximFilter = f;
+    this.renderMainContent();
+  },
+
+  toggleMaximBookScope() {
+    this.maximBookScope = this.maximBookScope === "active" ? "all" : "active";
+    this.randomMaximIndex = 0;
     this.renderMainContent();
   },
 
