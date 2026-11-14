@@ -1,4 +1,4 @@
-/* 「快速成长指南」- 类“我的持仓簿”金融级卡片式小程序样式 */
+/* 「快速成长指南」- 类“我的持仓簿”金融级卡片式小程序样式 v2.5 */
 :root {
   --bg-page: #0f172a;
   --bg-shell: #f8fafc;
@@ -39,6 +39,31 @@
   --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
 }
 
+/* 夜间护眼深色模式变量覆盖 */
+body.dark-mode {
+  --bg-page: #020617;
+  --bg-shell: #0f172a;
+  --bg-card: #1e293b;
+  --bg-subtle: #0b1120;
+  --text-main: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #64748b;
+  --border-color: #334155;
+  --gold-dark: #fbbf24;
+  --navy-accent: #60a5fa;
+  --pos-green-bg: rgba(5, 150, 105, 0.18);
+  --neg-red-bg: rgba(220, 38, 38, 0.18);
+  --p0-bg: rgba(220, 38, 38, 0.18);
+  --p0-text: #fca5a5;
+  --p0-border: rgba(248, 113, 113, 0.35);
+  --p1-bg: rgba(217, 119, 6, 0.18);
+  --p1-text: #fcd34d;
+  --p1-border: rgba(251, 191, 36, 0.35);
+  --p2-bg: rgba(37, 99, 235, 0.2);
+  --p2-text: #93c5fd;
+  --p2-border: rgba(96, 165, 250, 0.35);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -53,7 +78,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* 外层容器：支持【小程序窄屏 520px】与【宽屏研报 1080px】一键切换 */
+/* 外层容器：支持【小程序窄屏 540px】与【宽屏研报 1080px】一键切换 */
 .app-wrapper {
   min-height: 100vh;
   display: flex;
@@ -71,7 +96,7 @@ body {
   flex-direction: column;
   position: relative;
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.45);
-  transition: max-width 0.25s ease;
+  transition: max-width 0.25s ease, background-color 0.2s ease;
 }
 
 .app-shell.wide-mode {
@@ -82,49 +107,57 @@ body {
 .top-navbar {
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   color: #ffffff;
-  padding: calc(14px + env(safe-area-inset-top, 0px)) 16px 14px 16px;
+  padding: calc(14px + env(safe-area-inset-top, 0px)) 14px 12px 14px;
   position: sticky;
   top: 0;
   z-index: 100;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .brand-group {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 9px;
+  min-width: 0;
 }
 
 .brand-logo {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: 10px;
   background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 19px;
+  flex-shrink: 0;
   box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
 }
 
 .brand-title {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
 }
 
 .brand-sub {
-  font-size: 11px;
+  font-size: 10.5px;
   color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .top-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 .btn-top {
@@ -132,9 +165,10 @@ body {
   color: #f8fafc;
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 20px;
-  padding: 5px 11px;
+  padding: 5px 10px;
   font-size: 12px;
   cursor: pointer;
+  white-space: nowrap;
   transition: all 0.15s;
 }
 
@@ -153,7 +187,7 @@ body {
 .active-book-bar {
   background: #1e293b;
   color: #e2e8f0;
-  padding: 8px 18px;
+  padding: 8px 16px;
   font-size: 12px;
   display: flex;
   align-items: center;
@@ -172,21 +206,27 @@ body {
   font-weight: 600;
   cursor: pointer;
   outline: none;
+  max-width: 100%;
+}
+
+.active-book-select option {
+  background: #1e293b;
+  color: #f8fafc;
 }
 
 /* 主内容区 */
 .main-content {
   flex: 1;
-  padding: 16px 16px 90px;
+  padding: 16px 16px 96px;
 }
 
-/* 持仓总览黑金卡片（类“我的持仓簿”头部净值卡） */
+/* 持仓总览黑金卡片 */
 .portfolio-hero {
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 65%, #451a03 100%);
   color: #ffffff;
   border-radius: var(--radius-lg);
   padding: 20px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
   box-shadow: var(--shadow-md);
   position: relative;
   overflow: hidden;
@@ -196,6 +236,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  gap: 10px;
   margin-bottom: 16px;
 }
 
@@ -211,6 +252,7 @@ body {
   color: #fbbf24;
   display: flex;
   align-items: baseline;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -243,6 +285,42 @@ body {
   color: #94a3b8;
 }
 
+/* 四大认知赛道概览网格（窄屏自动 2x2） */
+.sector-overview-grid {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  font-size: 11px;
+}
+
+.sector-mini-card {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 7px 9px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+
+.sector-mini-card:hover,
+.sector-mini-card.active {
+  background: rgba(251, 191, 36, 0.15);
+  border-color: rgba(251, 191, 36, 0.4);
+}
+
+/* 全局跨书检索栏 */
+.global-search-bar {
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.global-search-results {
+  margin-bottom: 14px;
+}
+
 /* 分类胶囊栏 */
 .category-pills {
   display: flex;
@@ -273,7 +351,7 @@ body {
 .cat-pill.active {
   background: var(--navy-primary);
   color: #fbbf24;
-  border-color: var(--navy-primary);
+  border-color: #fbbf24;
 }
 
 /* 书籍持仓卡片列表 */
@@ -335,8 +413,21 @@ body {
 .book-badges {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 6px;
   margin-bottom: 5px;
+}
+
+.pos-select-mini {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 .badge {
@@ -365,6 +456,11 @@ body {
 .badge-speed {
   background: #ecfdf5;
   color: #065f46;
+}
+
+body.dark-mode .badge-watch {
+  background: #334155;
+  color: #cbd5e1;
 }
 
 .book-title {
@@ -404,7 +500,7 @@ body {
 .progress-track {
   width: 100%;
   height: 7px;
-  background: #e2e8f0;
+  background: var(--border-color);
   border-radius: 99px;
   overflow: hidden;
 }
@@ -436,6 +532,7 @@ body {
 .btn-primary {
   background: var(--navy-primary);
   color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.25);
 }
 
 .btn-primary:hover {
@@ -443,7 +540,7 @@ body {
 }
 
 .btn-outline {
-  background: #fff;
+  background: var(--bg-card);
   color: var(--text-main);
   border-color: var(--border-color);
 }
@@ -455,7 +552,7 @@ body {
 /* 二级子导航（极速拆书页内部切换） */
 .sub-tabs {
   display: flex;
-  background: #e2e8f0;
+  background: var(--border-color);
   padding: 4px;
   border-radius: 10px;
   margin-bottom: 16px;
@@ -475,7 +572,7 @@ body {
 }
 
 .sub-tab-btn.active {
-  background: #ffffff;
+  background: var(--bg-card);
   color: var(--text-main);
   box-shadow: var(--shadow-sm);
 }
@@ -497,6 +594,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -510,6 +608,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .timer-display {
@@ -543,7 +643,7 @@ body {
 
 .pass-badge {
   background: var(--gold-light);
-  color: var(--gold-dark);
+  color: #92400e;
   font-size: 11px;
   font-weight: 700;
   padding: 2px 8px;
@@ -575,7 +675,7 @@ body {
 
 .checkpoint-item.done {
   background: var(--pos-green-bg);
-  border-color: #a7f3d0;
+  border-color: #34d399;
 }
 
 .checkpoint-box {
@@ -597,7 +697,7 @@ body {
   border-color: var(--pos-green);
 }
 
-/* 章节精读卡片 */
+/* 章节精读卡片（支持一键折叠/展开） */
 .chapter-card {
   background: var(--bg-card);
   border-radius: var(--radius-lg);
@@ -609,6 +709,14 @@ body {
 
 .chapter-card.is-read {
   border-left: 4px solid var(--pos-green);
+}
+
+.chapter-card.collapsed .chapter-body {
+  display: none;
+}
+
+.chapter-card.collapsed .chapter-thesis {
+  margin-bottom: 0;
 }
 
 .chapter-top {
@@ -655,6 +763,12 @@ body {
   margin-bottom: 10px;
 }
 
+body.dark-mode .chapter-thesis {
+  background: rgba(245, 158, 11, 0.14);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #fde68a;
+}
+
 .how-to-read-box {
   font-size: 12.5px;
   color: #1e40af;
@@ -662,6 +776,11 @@ body {
   padding: 8px 11px;
   border-radius: 8px;
   margin-bottom: 10px;
+}
+
+body.dark-mode .how-to-read-box {
+  background: rgba(37, 99, 235, 0.18);
+  color: #93c5fd;
 }
 
 .keypoints-list {
@@ -694,10 +813,18 @@ body {
   border-left: 3px solid var(--pos-green);
 }
 
+body.dark-mode .case-pos {
+  color: #6ee7b7;
+}
+
 .case-neg {
   background: var(--neg-red-bg);
   color: #991b1b;
   border-left: 3px solid var(--neg-red);
+}
+
+body.dark-mode .case-neg {
+  color: #fca5a5;
 }
 
 .maxim-quote {
@@ -725,7 +852,7 @@ body {
   height: 10px;
   border-radius: 99px;
   overflow: hidden;
-  background: #e2e8f0;
+  background: var(--border-color);
   margin: 6px 0 4px;
 }
 
@@ -739,7 +866,7 @@ body {
 
 /* 表单与交互体检器 */
 .form-group {
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .form-label {
@@ -750,14 +877,24 @@ body {
   color: var(--text-main);
 }
 
-.form-input, .form-select, .form-textarea {
+.form-input,
+.form-select,
+.form-textarea {
   width: 100%;
   padding: 9px 11px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 13.5px;
   font-family: inherit;
-  background: #fff;
+  background: var(--bg-card);
+  color: var(--text-main);
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--gold-primary);
 }
 
 .checkbox-grid {
@@ -768,18 +905,52 @@ body {
 
 .check-pill {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   padding: 8px 11px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
   font-size: 12.5px;
   cursor: pointer;
-  background: #fff;
+  background: var(--bg-card);
+  color: var(--text-main);
 }
 
 .check-pill input {
   accent-color: var(--gold-primary);
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+.check-pill.danger-pill {
+  border-color: var(--p0-border);
+  background: var(--p0-bg);
+}
+
+.check-pill.munger-pill {
+  border-color: rgba(5, 150, 105, 0.3);
+  background: var(--pos-green-bg);
+}
+
+/* 编辑模式横幅 */
+.edit-mode-banner {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border: 1px solid #f59e0b;
+  color: #92400e;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+body.dark-mode .edit-mode-banner {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fde68a;
 }
 
 /* 底部固定导航栏 */
@@ -795,7 +966,11 @@ body {
   grid-template-columns: repeat(4, 1fr);
   padding: 6px 8px calc(10px + env(safe-area-inset-bottom));
   z-index: 100;
-  transition: max-width 0.25s ease;
+  transition: max-width 0.25s ease, background-color 0.2s ease;
+}
+
+body.dark-mode .bottom-tabbar {
+  background: rgba(15, 23, 42, 0.96);
 }
 
 .app-shell.wide-mode .bottom-tabbar {
@@ -828,7 +1003,7 @@ body {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.65);
+  background: rgba(15, 23, 42, 0.68);
   z-index: 200;
   display: none;
   align-items: center;
@@ -841,21 +1016,59 @@ body {
 }
 
 .modal-card {
-  background: #fff;
+  background: var(--bg-card);
+  color: var(--text-main);
   width: 100%;
   max-width: 500px;
   max-height: 88vh;
   overflow-y: auto;
   border-radius: var(--radius-lg);
   padding: 20px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+}
+
+/* 轻量 Toast 提示 */
+.app-toast {
+  position: fixed;
+  top: calc(68px + env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%) translateY(-12px);
+  background: #0f172a;
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  padding: 8px 16px;
+  border-radius: 99px;
+  font-size: 12.5px;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  z-index: 300;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  white-space: nowrap;
+}
+
+.app-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 @media (max-width: 600px) {
-  .hero-metrics-grid {
+  .hero-metrics-grid,
+  .sector-overview-grid {
     grid-template-columns: repeat(2, 1fr);
   }
   #btn-view-mode {
+    display: none;
+  }
+  /* 防止 iOS Safari 点击输入框自动放大视口 */
+  .form-input,
+  .form-select,
+  .form-textarea {
+    font-size: 16px;
+  }
+  .brand-sub {
     display: none;
   }
 }

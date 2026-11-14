@@ -10,25 +10,28 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <link rel="manifest" href="manifest.json?v=2.4" />
+  <link rel="manifest" href="manifest.json?v=2.5" />
   <title>快速成长指南 · 认知持仓簿</title>
-  <link rel="stylesheet" href="css/app.css?v=2.4" />
+  <link rel="stylesheet" href="css/app.css?v=2.5" />
 </head>
 <body>
+  <div id="app-toast" class="app-toast"></div>
+
   <div class="app-wrapper">
     <div id="app-shell" class="app-shell">
       <!-- 顶部小程序导航栏 -->
       <header class="top-navbar">
         <div class="brand-group">
           <div class="brand-logo">🏰</div>
-          <div>
-            <div class="brand-title">快速成长指南 <span style="font-size:10px;color:#fbbf24;font-weight:500;">v2.4</span></div>
+          <div style="min-width:0;">
+            <div class="brand-title">快速成长指南 <span style="font-size:10px;color:#fbbf24;font-weight:500;">v2.5</span></div>
             <div class="brand-sub">类持仓簿 · 价值投资极速精读系统</div>
           </div>
         </div>
         <div class="top-actions">
+          <button id="btn-dark-mode" class="btn-top" onclick="GrowthApp.toggleDarkMode()" title="切换日间/夜间护眼模式">🌙</button>
           <button id="btn-view-mode" class="btn-top" onclick="GrowthApp.toggleWideMode()">🖥️ 宽屏视图</button>
-          <button class="btn-top" onclick="GrowthApp.forceRefreshApp()" title="强制拉取最新书库">🔄 刷新</button>
+          <button class="btn-top" onclick="GrowthApp.openBackupModal()" title="导出或恢复学习进度与体检档案">📦 备份</button>
           <button class="btn-top gold" onclick="GrowthApp.openNewBookModal()">＋ 新书建仓</button>
         </div>
       </header>
@@ -44,6 +47,42 @@
     </div>
   </div>
 
+  <!-- 数据备份与跨设备同步 Modal -->
+  <div id="backup-modal" class="modal-backdrop" onclick="if(event.target===this)GrowthApp.closeBackupModal()">
+    <div class="modal-card">
+      <div class="section-title">
+        <span>📦 数据备份与跨设备同步</span>
+        <button class="btn-outline" style="padding:3px 8px;border-radius:6px;cursor:pointer;" onclick="GrowthApp.closeBackupModal()">✕</button>
+      </div>
+
+      <div class="chapter-thesis" style="font-weight:500;font-size:12px;">
+        💡 你的<strong>章节阅读进度、大师箴言闪卡、读书感悟笔记、自建书籍与股票投研体检档案</strong>均可一键导出保存，支持电脑与手机之间无缝同步！
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">① 导出当前数据（推荐定期保存或发到手机/电脑）</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-primary" onclick="GrowthApp.downloadBackupFile()">💾 下载 JSON 备份文件</button>
+          <button class="btn btn-outline" onclick="GrowthApp.copyBackupText()">📋 复制备份同步码</button>
+        </div>
+      </div>
+
+      <div class="form-group" style="border-top:1px dashed var(--border-color);padding-top:12px;">
+        <label class="form-label">② 从备份文件恢复</label>
+        <input id="backup-file-input" type="file" accept=".json,application/json" class="form-input" onchange="GrowthApp.importBackupFromFile(this)" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">③ 或直接粘贴备份同步码恢复</label>
+        <textarea id="backup-json-textarea" rows="4" class="form-textarea" placeholder="在此粘贴复制好的 JSON 备份同步码..."></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button class="btn btn-primary" onclick="GrowthApp.importBackupFromTextarea()">🔄 立即恢复数据</button>
+          <button class="btn btn-outline" onclick="GrowthApp.forceRefreshApp()" title="强制拉取最新静态资源">⚡ 强制刷新缓存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- 新书建仓与多书扩展架构 Modal -->
   <div id="new-book-modal" class="modal-backdrop" onclick="if(event.target===this)GrowthApp.closeNewBookModal()">
     <div class="modal-card">
@@ -52,22 +91,22 @@
         <button class="btn-outline" style="padding:3px 8px;border-radius:6px;cursor:pointer;" onclick="GrowthApp.closeNewBookModal()">✕</button>
       </div>
 
-      <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 12px;font-size:12px;color:#92400e;margin-bottom:14px;">
+      <div class="chapter-thesis" style="font-weight:500;font-size:12px;margin-bottom:14px;">
         <strong>💡 自动化 EPUB 深度拆解工作流：</strong><br/>
-        1. 以后有新书时，直接将 <code>.epub</code> 文件放进 <code>/Users/frank/Desktop/快速阅读/</code> 目录；<br/>
+        1. 以后有新书时，直接将 <code>.epub</code> 文件放进 <code>/Users/frank/Desktop/antigravity/快速阅读/</code> 目录；<br/>
         2. 运行 <code>python3 tools/parse_epub.py</code>（或直接让我帮你深度阅读），即可在 <code>data/books/</code> 下生成独立书籍数据包并挂载到书架！<br/>
         3. 你也可以在下方直接手动快速建仓一本新书：
       </div>
 
       <div class="form-group">
         <label class="form-label">书名</label>
-        <input id="nb-title" class="form-input" placeholder="例如：聪明的投资者 / 安全边际 / 巴菲特致股东的信" />
+        <input id="nb-title" class="form-input" placeholder="例如：安全边际 / 巴菲特致股东的信 / 漫步华尔街" />
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;" class="form-group">
         <div>
           <label class="form-label">作者</label>
-          <input id="nb-author" class="form-input" placeholder="例如：本杰明·格雷厄姆" />
+          <input id="nb-author" class="form-input" placeholder="例如：塞思·卡拉曼" />
         </div>
         <div>
           <label class="form-label">所属认知赛道</label>
@@ -107,15 +146,15 @@
   </div>
 
   <!-- 模块化数据层与主程序按序加载（带版本号防手机主屏幕缓存） -->
-  <script src="data/categories.js?v=2.4"></script>
-  <script src="data/books/pat-dorsey-moat.js?v=2.4"></script>
-  <script src="data/books/graham-intelligent-investor.js?v=2.4"></script>
-  <script src="data/books/tangchao-financial-report.js?v=2.4"></script>
-  <script src="data/books/howard-marks-most-important.js?v=2.4"></script>
-  <script src="data/books/howard-marks-cycle.js?v=2.4"></script>
-  <script src="data/books/preset-watchlist.js?v=2.4"></script>
-  <script src="data/books-index.js?v=2.4"></script>
-  <script src="js/store.js?v=2.4"></script>
-  <script src="js/app.js?v=2.4"></script>
+  <script src="data/categories.js?v=2.5"></script>
+  <script src="data/books/pat-dorsey-moat.js?v=2.5"></script>
+  <script src="data/books/graham-intelligent-investor.js?v=2.5"></script>
+  <script src="data/books/tangchao-financial-report.js?v=2.5"></script>
+  <script src="data/books/howard-marks-most-important.js?v=2.5"></script>
+  <script src="data/books/howard-marks-cycle.js?v=2.5"></script>
+  <script src="data/books/preset-watchlist.js?v=2.5"></script>
+  <script src="data/books-index.js?v=2.5"></script>
+  <script src="js/store.js?v=2.5"></script>
+  <script src="js/app.js?v=2.5"></script>
 </body>
 </html>
